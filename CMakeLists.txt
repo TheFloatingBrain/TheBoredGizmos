@@ -11,5 +11,19 @@ endif()
 
 project ("TheBoredGames")
 
+if(${FIND_RESOURCE_METHOD} STREQUAL "SOURCE")
+	add_compile_definitions(RESOURCE_DIRECTORY=${PROJECT_SOURCE_DIR})
+	add_compile_definitions(RESOURCE_USE_BUNDLE=0)
+	add_compile_definitions(RESOURCE_USE_EXECUTABLE=0)
+elseif(${FIND_RESOURCE_METHOD} STREQUAL "BUNDLE")
+	add_compile_definitions(RESOURCE_USE_BUNDLE=1)
+	add_compile_definitions(RESOURCE_USE_EXECUTABLE=0)
+elseif(${FIND_RESOURCE_METHOD} STREQUAL "EXECUTABLE")
+	add_compile_definitions(RESOURCE_USE_BUNDLE=0)
+	add_compile_definitions(RESOURCE_USE_EXECUTABLE=1)
+else()
+	message(FATAL_ERROR "Must specifiy FIND_RESOURCE_METHOD either as SOURCE, BUNDLE, or EXECUTABLE")
+endif()
+
 # Include sub-projects.
-add_subdirectory ("ChillInvaders")
+add_subdirectory ("StarBowler")
