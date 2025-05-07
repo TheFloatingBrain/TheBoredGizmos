@@ -6,9 +6,15 @@
 #include <format>
 #include <fstream>
 #include <cpplocate/cpplocate.h>
+#include <spdlog/spdlog.h>
+#include <nlohmann/json.hpp>
+#include <raylib.h>
+#include <ranges>
 #define TO_STRING_MACRO_INTERNAL(TO_STRINGIFY) #TO_STRINGIFY
 #define TO_STRING_MACRO(TO_STRINGIFY) TO_STRING_MACRO_INTERNAL(TO_STRINGIFY)
 #define GAME_NAME_STRING TO_STRING_MACRO(GAME_NAME)
+
+using json = nlohmann::json;
 
 namespace Bored:: GAME_NAME
 {
@@ -163,6 +169,36 @@ namespace Bored:: GAME_NAME
 		return buffer.str();
 	}
 
+	struct NotImplemented : public std::logic_error { //This class adapted from http://stackoverflow.com/questions/24469927/
+		NotImplemented(std::string_view what) : std::logic_error(std::format("{} not yet implemented", what)) {}
+	};
+
+	inline spdlog::level::level_enum to_spdlog_level(TraceLogLevel level)
+	{
+		switch(level)
+		{
+			case LOG_ALL: return spdlog::level::trace;
+			case LOG_TRACE: return spdlog::level::trace;
+			case LOG_DEBUG: return spdlog::level::debug;
+			case LOG_INFO: return spdlog::level::info;
+			case LOG_WARNING: return spdlog::level::warn;
+			case LOG_ERROR: return spdlog::level::err;
+			case LOG_FATAL: return spdlog::level::critical;
+			case LOG_NONE: return spdlog::level::off;
+			default: return spdlog::level::trace;
+		}
+	}
+
+	inline void log(int msgType, const char* text, va_list args)
+	{
+		static thread_local std::vector<char> buffer;
+		static thread_local size_t max_buffer_size;
+		buffer.clear();
+		const size_t buffer_size = std::vsnprintf(nullptr, 0, text, args) + 1;
+		buffer.resize(buffer_size);
+		std::vsnprintf(buffer.data(), buffer_size, text, args) + 1;
+		spdlog::log(to_spdlog_level(static_cast<TraceLogLevel>(msgType)), buffer.data());
+	}
 }
 #endif // BORED_GAMES_STAR_BOWLER_CONFIG_HEADER_HPP_INCLUDE_GUARD
 

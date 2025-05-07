@@ -1,29 +1,65 @@
 #include <StarBowler/Config.hpp>
 #ifndef BORED_GAMES_STAR_BOWLER_SPRITE_HEADER_HPP_INCLUDE_GUARD
 #define BORED_GAMES_STAR_BOWLER_SPRITE_HEADER_HPP_INCLUDE_GUARD
-#include <nlohmann/json.hpp>
-#include <raylib.h>
-
-using json = nlohmann::json;
 
 namespace Bored:: GAME_NAME
 {
+	struct Vector2u { size_t x, y; };
 	struct Sprite
 	{
 		struct Animation
 		{
 			Vector2 start = {0.f, 0.f};
 			size_t xTiles = 1, yTiles = 1, currentFrame = 0;
-			enum class XOrder { LR, RL } xOrder = XOrder::LR;
-			enum class YOrder { TB, BT } yOrder = YOrder::TB;
+			enum class XOrder { LR = 1, RL = -1 } xOrder = XOrder::LR;
+			enum class YOrder { TB = 1, BT = -1 } yOrder = YOrder::TB;
 			enum class CoordinateOrder { XY, YX } coordinateOrder = CoordinateOrder::XY;
+			inline void currentTileAbs(auto& from) const 
+			{
+				if(coordinateOrder == CoordinateOrder::YX)
+					throw NotImplemented("YX Coordinate Order");
+				from.x = (currentFrame % xTiles);
+				from.y = (currentFrame - from.x) / xTiles;
+			}
+			inline Vector2u currentTileAbs() const
+			{
+				Vector2u currentTile;
+				currentTileAbs(currentTile);
+				return currentTile;
+			}
+			inline void setSourceRectStartPosition(Rectangle& source) const
+			{
+				currentTileAbs(source); /* Minor optimization, re-use the rectangle's 
+				x and y instead of returning a new vector */
+				if(coordinateOrder == CoordinateOrder::XY) {
+					source.x = source.width * source.x * static_cast<int8_t>(xOrder) + start.x;
+					source.y = source.height * source.y * static_cast<int8_t>(yOrder) + start.y;
+				}
+			}
+			inline Rectangle sourceRectStartPosition() const
+			{
+				Rectangle source;
+				setSourceRectStartPosition(source);
+				return source;
+			}
 		};
 		using AnimationsType = std::map<std::string, Animation>;
 		size_t width, height;
-		float orientation = 0.f;
-		Color tint = WHITE;
 		AnimationsType animations;
 		std::string currentAnimation;
+		inline void setSourceRect(Rectangle& source) const
+		{
+			const auto& animation = animations.at(currentAnimation);
+			source.width = width;
+			source.height = height;
+			animation.setSourceRectStartPosition(source);
+		}
+		inline Rectangle sourceRect() const
+		{
+			Rectangle source;
+			setSourceRect(source);
+			return source;
+		}
 	};
 
 	inline Result<Rectangle, Error> rectFromJson(const json& from)
@@ -146,6 +182,29 @@ namespace Bored:: GAME_NAME
 		};
 		return atlas;
 	}
+
+	struct Renderer2D
+	{
+		constexpr static const Color defaultTint = WHITE;
+		SpriteAtlas atlas;
+		void draw(const Sprite& sprite, const Vector2& position, const Color& tint = defaultTint
+		) const { DrawTextureRec(atlas.texture, sprite.sourceRect(), position, tint); }
+		bool draw(
+				const std::ranges::range auto& sprites, 
+				const std::ranges::range auto& positions, 
+				const Color& tint = defaultTint
+			) const
+		{
+			if(sprites.size() != positions.size())
+				return false;
+			Rectangle sourceRect;
+			for(size_t ii = 0; ii < sprites.size(); ++ii) {
+				sprites[ii].setSourceRect(sourceRect);
+				DrawTextureRec(atlas.texture, sourceRect, positions[ii], tint);
+			}
+			return 0;
+		}
+	};
 }
 
 #endif // BORED_GAMES_STAR_BOWLER_SPRITE_HEADER_HPP_INCLUDE_GUARD

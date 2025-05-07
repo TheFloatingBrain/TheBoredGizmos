@@ -1,5 +1,5 @@
 {
-  "Ship": {
+  "PlayerShip": {
     "width": 32,
     "height": 32, 
     "Animations": {
@@ -13,7 +13,7 @@
         "coordinate_order": "XY"
       }
   },
-  "BowlingShip": {
+  "PlayerBowlingShip": {
     "width": 32,
     "height": 32, 
     "Animations": {
