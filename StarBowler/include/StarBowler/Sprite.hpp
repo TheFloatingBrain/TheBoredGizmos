@@ -148,15 +148,24 @@ namespace Bored:: GAME_NAME
 	{
 		Texture2D texture;
 		json map;
+		SpriteAtlas(Texture2D texture_, json map_) : texture(texture_), map(map_), owns(true) {}
+		SpriteAtlas(SpriteAtlas&& other) : texture(other.texture), map(other.map), owns(true) { other.owns = false; }
+		SpriteAtlas(SpriteAtlas& other) = delete;
 		Result<Sprite, Error> retrieveSprite(std::string_view spriteName)
 		{
 			if(map.contains(spriteName) == false)
 				return Error::SpriteNotFound(spriteName.data());
 			return spriteFromJson(spriteName.data(), map[spriteName]);
 		}
-		~SpriteAtlas() {
-			UnloadTexture(texture);
+		~SpriteAtlas()
+		{
+			if(owns == true) {
+				UnloadTexture(texture);
+				owns = false;
+			}
 		}
+		protected: 
+			bool owns;
 	};
 
 	Result<SpriteAtlas, Error> loadSpriteAtlas(
@@ -183,12 +192,45 @@ namespace Bored:: GAME_NAME
 		return atlas;
 	}
 
+	struct SpatialProperties
+	{
+		Vector2 position;
+		float rotation;
+		Vector2 scale;
+	};
+
 	struct Renderer2D
 	{
 		constexpr static const Color defaultTint = WHITE;
 		SpriteAtlas atlas;
 		void draw(const Sprite& sprite, const Vector2& position, const Color& tint = defaultTint
 		) const { DrawTextureRec(atlas.texture, sprite.sourceRect(), position, tint); }
+		void draw(
+			const Sprite& sprite, 
+			const SpatialProperties& properties, 
+			const Color& tint = defaultTint
+		) const
+		{
+			auto source = sprite.sourceRect();
+			Rectangle destination{
+				.x = source.x, 
+				.y = source.y,
+				.width = properties.scale.x * sprite.width,
+				.height = properties.scale.y * sprite.height
+			};
+			Vector2 origin = {
+				.x = properties.scale.x * sprite.width / 2.f,
+				.y = properties.scale.y * sprite.height / 2.f
+			};
+			DrawTexturePro(
+				atlas.texture, 
+				source, 
+				destination, 
+				origin, 
+				properties.rotation, 
+				tint
+			);
+		}
 		bool draw(
 				const std::ranges::range auto& sprites, 
 				const std::ranges::range auto& positions, 

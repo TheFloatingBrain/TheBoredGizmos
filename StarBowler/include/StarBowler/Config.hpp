@@ -141,7 +141,7 @@ namespace Bored:: GAME_NAME
 		};
 		const Status status;
 		Result(Error_PT error_) : error(error_), status(Status::Error) {}
-		Result(Success_PT result_) : result(result_), status(Status::Success) {}
+		Result(Success_PT&& result_) : result(std::move(result_)), status(Status::Success) {}
 		~Result()
 		{
 			if(status == Status::Success)
@@ -196,7 +196,7 @@ namespace Bored:: GAME_NAME
 		buffer.clear();
 		const size_t buffer_size = std::vsnprintf(nullptr, 0, text, args) + 1;
 		buffer.resize(buffer_size);
-		std::vsnprintf(buffer.data(), buffer_size, text, args) + 1;
+		std::vsnprintf(buffer.data(), buffer_size, text, args);
 		spdlog::log(to_spdlog_level(static_cast<TraceLogLevel>(msgType)), buffer.data());
 	}
 }

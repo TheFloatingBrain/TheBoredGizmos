@@ -3,32 +3,49 @@ using namespace Bored:: GAME_NAME;
 
 int main(int argc, char** args)
 {
-	std::cout << gameName << " is the name of the game.\n";
-	std::cout << resourceDirectory << " is the resource path.\n";
-	const int screenWidth = 800;
-	const int screenHeight = 450;
+	spdlog::set_level(spdlog::level::trace);
+	spdlog::info("{} is the name of the game.", gameName);
+	spdlog::info("{} is the resource path.", resourceDirectory.string());
+	const float screenWidth = 240;
+	const float screenHeight = 240;
+	const float virtualScreenWidth = 64 * 8;
+	const float virtualScreenHeight = 64 * 8;
+	const Vector2 scale{
+		virtualScreenWidth / screenWidth, 
+		virtualScreenHeight / screenHeight
+	};
+	spdlog::trace("Scale x {} y {}", scale.x, scale.y);
 	SetTraceLogCallback(log);
 	InitWindow(screenWidth, screenHeight, gameName.data());
+	SetTargetFPS(60);
 	auto atlasResult = loadSpriteAtlas(gameName, "Spritesheet");
 	if(atlasResult == false) {
 		spdlog::critical(to_string(atlasResult.error));
 		return 1;
 	}
-	auto atlas = atlasResult.result;
-	auto playerShipSpriteResult = atlas.retrieveSprite("PlayerShip");
+	Renderer2D renderer{std::move(atlasResult.result)};
+	auto playerShipSpriteResult = renderer.atlas.retrieveSprite("PlayerBowlingShip");
 	if(playerShipSpriteResult == false) {
 		spdlog::critical(to_string(playerShipSpriteResult.error));
 		return 1;
 	}
 	auto playerShipSprite = playerShipSpriteResult.result;
-	Renderer2D renderer{atlas};
-	Camera2D camera = {0};
+	spdlog::trace("Player Ship Sprite w {} h {}", playerShipSprite.width, playerShipSprite.height);
+	Camera2D camera = {
+		.offset = {screenWidth / 2.0f, screenHeight / 2.0f},
+		.target = {0.0f, 0.0f},
+		.rotation = 0.0f,
+		.zoom = 1.0f,
+	};
+
 	while(WindowShouldClose() == false)
 	{
-		ClearBackground(WHITE);
-		BeginMode2D(camera);
-			renderer.draw(playerShipSprite, Vector2{screenWidth / 2, screenHeight / 2});
-		EndMode2D();
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
+			BeginMode2D(camera);
+				renderer.draw(playerShipSprite, SpatialProperties{.position{0, 0},.rotation{180},.scale=scale});
+			EndMode2D();
+		EndDrawing();
 	}
 	CloseWindow();
 	return 0;
