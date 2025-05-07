@@ -9,34 +9,56 @@ namespace Bored:: GAME_NAME
 	{
 		struct Animation
 		{
-			Vector2 start = {0.f, 0.f};
-			size_t xTiles = 1, yTiles = 1, currentFrame = 0;
+			const Vector2 start = {0.f, 0.f};
+			const size_t xTiles = 1;
+			const size_t yTiles = 1;
+			size_t currentFrame = 0;
 			enum class XOrder { LR = 1, RL = -1 } xOrder = XOrder::LR;
 			enum class YOrder { TB = 1, BT = -1 } yOrder = YOrder::TB;
 			enum class CoordinateOrder { XY, YX } coordinateOrder = CoordinateOrder::XY;
-			inline void currentTileAbs(auto& from) const 
+			inline bool currentTileAbs(auto& from) const noexcept
 			{
-				if(coordinateOrder == CoordinateOrder::YX)
-					throw NotImplemented("YX Coordinate Order");
+				[[unlikely]]
+				if(currentFrame > (xTiles * yTiles))
+				{
+					spdlog::critical(
+						"(Animation Error) currentFrame ({}) out of bounds ({} * {} = {})",
+						currentFrame,
+						xTiles,
+						yTiles,
+						xTiles * yTiles
+					);
+					return false;
+				}
+				[[unlikely]]
+				if(coordinateOrder == CoordinateOrder::YX) {
+					spdlog::critical("(Not Implemented) YX Coordinate Order");
+					return false;
+				}
 				from.x = (currentFrame % xTiles);
 				from.y = (currentFrame - from.x) / xTiles;
+				return true;
 			}
-			inline Vector2u currentTileAbs() const
+			inline Vector2u currentTileAbs() const noexcept
 			{
 				Vector2u currentTile;
 				currentTileAbs(currentTile);
 				return currentTile;
 			}
-			inline void setSourceRectStartPosition(Rectangle& source) const
+			inline bool setSourceRectStartPosition(Rectangle& source) const noexcept
 			{
-				currentTileAbs(source); /* Minor optimization, re-use the rectangle's 
+				const bool success = currentTileAbs(source); /* Minor optimization, re-use the rectangle's 
 				x and y instead of returning a new vector */
-				if(coordinateOrder == CoordinateOrder::XY) {
+				[[unlikely]]
+				if(success == false) return false;
+				if(coordinateOrder == CoordinateOrder::XY)
+				{
 					source.x = source.width * source.x * static_cast<int8_t>(xOrder) + start.x;
 					source.y = source.height * source.y * static_cast<int8_t>(yOrder) + start.y;
+					return true;
 				}
 			}
-			inline Rectangle sourceRectStartPosition() const
+			inline Rectangle sourceRectStartPosition() const noexcept
 			{
 				Rectangle source;
 				setSourceRectStartPosition(source);
@@ -47,14 +69,18 @@ namespace Bored:: GAME_NAME
 		size_t width, height;
 		AnimationsType animations;
 		std::string currentAnimation;
-		inline void setSourceRect(Rectangle& source) const
+		inline bool setSourceRect(Rectangle& source) const noexcept
 		{
+			[[unlikely]] if(animations.contains(currentAnimation) == false) {
+				spdlog::critical("Sprite does not contain animation {}", currentAnimation);
+				return false;
+			}
 			const auto& animation = animations.at(currentAnimation);
 			source.width = width;
 			source.height = height;
-			animation.setSourceRectStartPosition(source);
+			return animation.setSourceRectStartPosition(source);
 		}
-		inline Rectangle sourceRect() const
+		inline Rectangle sourceRect() const noexcept
 		{
 			Rectangle source;
 			setSourceRect(source);
@@ -134,7 +160,7 @@ namespace Bored:: GAME_NAME
 			);
 			if(animationResult == false)
 				return animationResult.error;
-			animations[animationName] = animationResult.result;
+			animations.insert(std::pair{animationName, animationResult.result});
 		}
 		return Sprite{
 			.width = from["width"],
