@@ -170,6 +170,15 @@ namespace Bored:: GAME_NAME
 		};
 	}
 
+	namespace Internal
+	{
+		template<typename Sprite_PT>
+		requires(std::is_trivially_copyable_v<Sprite_PT> == true 
+				|| std::is_trivially_copyable_v<typename Sprite_PT::Animation> == true) /* This is about the best 
+				we can do at compile time as imperfect as this heuristic is*/
+		inline thread_local std::map<std::string_view, Sprite_PT> protoSpriteCache;
+	}
+
 	struct SpriteAtlas
 	{
 		Texture2D texture;
@@ -177,11 +186,22 @@ namespace Bored:: GAME_NAME
 		SpriteAtlas(Texture2D texture_, json map_) : texture(texture_), map(map_), owns(true) {}
 		SpriteAtlas(SpriteAtlas&& other) : texture(other.texture), map(other.map), owns(true) { other.owns = false; }
 		SpriteAtlas(SpriteAtlas& other) = delete;
+
+
 		Result<Sprite, Error> retrieveSprite(std::string_view spriteName)
 		{
+			if(Internal::protoSpriteCache<Sprite>.contains(spriteName) == true) {
+				Sprite copy = Internal::protoSpriteCache<Sprite>.at(spriteName);
+				return copy;
+			}
 			if(map.contains(spriteName) == false)
 				return Error::SpriteNotFound(spriteName.data());
-			return spriteFromJson(spriteName.data(), map[spriteName]);
+			auto result = spriteFromJson(spriteName.data(), map[spriteName]);
+			if(result == false)
+				return result.error;
+			Sprite sprite = result.result;
+			Internal::protoSpriteCache<Sprite>.insert({spriteName, sprite});
+			return sprite;
 		}
 		~SpriteAtlas()
 		{
