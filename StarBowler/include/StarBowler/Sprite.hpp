@@ -218,35 +218,37 @@ namespace Bored:: GAME_NAME
 		return atlas;
 	}
 
-	struct SpatialProperties
+	struct SpatialProperties2D
 	{
 		Vector2 position;
 		float rotation;
-		Vector2 scale;
+		Vector2 scale = {1.f, 1.f};
 	};
 
 	struct Renderer2D
 	{
 		constexpr static const Color defaultTint = WHITE;
 		SpriteAtlas atlas;
-		void draw(const Sprite& sprite, const Vector2& position, const Color& tint = defaultTint
+		Vector2 screenScale = {1.f, 1.f};
+		inline void draw(const Sprite& sprite, const Vector2& position, const Color& tint = defaultTint
 		) const { DrawTextureRec(atlas.texture, sprite.sourceRect(), position, tint); }
-		void draw(
+		inline void draw(
 			const Sprite& sprite, 
-			const SpatialProperties& properties, 
+			const SpatialProperties2D& properties, 
+			Rectangle& source, 
 			const Color& tint = defaultTint
 		) const
 		{
-			auto source = sprite.sourceRect();
+			sprite.setSourceRect(source);
 			Rectangle destination{
 				.x = source.x, 
 				.y = source.y,
-				.width = properties.scale.x * sprite.width,
-				.height = properties.scale.y * sprite.height
+				.width = properties.scale.x * screenScale.x * sprite.width,
+				.height = properties.scale.y * screenScale.y * sprite.height
 			};
 			Vector2 origin = {
-				.x = properties.scale.x * sprite.width / 2.f,
-				.y = properties.scale.y * sprite.height / 2.f
+				.x = properties.scale.x * screenScale.x * sprite.width / 2.f,
+				.y = properties.scale.y * screenScale.y * sprite.height / 2.f
 			};
 			DrawTexturePro(
 				atlas.texture, 
@@ -257,20 +259,26 @@ namespace Bored:: GAME_NAME
 				tint
 			);
 		}
-		bool draw(
+		inline void draw(
+			const Sprite& sprite,
+			const SpatialProperties2D& properties,
+			const Color& tint = defaultTint
+		) const {
+			Rectangle source;
+			draw(sprite, properties, source, tint);
+		}
+		inline bool draw(
 				const std::ranges::range auto& sprites, 
-				const std::ranges::range auto& positions, 
+				const std::ranges::range auto& spatialProperties2D, 
 				const Color& tint = defaultTint
 			) const
 		{
-			if(sprites.size() != positions.size())
+			if(sprites.size() != spatialProperties2D.size())
 				return false;
 			Rectangle sourceRect;
-			for(size_t ii = 0; ii < sprites.size(); ++ii) {
-				sprites[ii].setSourceRect(sourceRect);
-				DrawTextureRec(atlas.texture, sourceRect, positions[ii], tint);
-			}
-			return 0;
+			for(size_t ii = 0; ii < sprites.size(); ++ii)
+				draw(sprites[ii], spatialProperties2D[ii], sourceRect, tint);
+			return true;
 		}
 	};
 }

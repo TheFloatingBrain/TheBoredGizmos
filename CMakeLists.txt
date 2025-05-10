@@ -9,7 +9,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("TheBoredGames")
+project ("TheBoredGizmos")
 
 if(${FIND_RESOURCE_METHOD} STREQUAL "SOURCE")
 	add_compile_definitions(RESOURCE_DIRECTORY=${PROJECT_SOURCE_DIR})

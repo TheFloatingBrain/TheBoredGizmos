@@ -23,7 +23,7 @@ int main(int argc, char** args)
 		spdlog::critical(to_string(atlasResult.error));
 		return 1;
 	}
-	Renderer2D renderer{std::move(atlasResult.result)};
+	Renderer2D renderer{std::move(atlasResult.result), scale};
 	auto playerShipSpriteResult = renderer.atlas.retrieveSprite("PlayerBowlingShip");
 	if(playerShipSpriteResult == false) {
 		spdlog::critical(to_string(playerShipSpriteResult.error));
@@ -43,7 +43,7 @@ int main(int argc, char** args)
 		BeginDrawing();
 		ClearBackground(RAYWHITE);
 			BeginMode2D(camera);
-				renderer.draw(playerShipSprite, SpatialProperties{.position{0, 0},.rotation{180},.scale=scale});
+				renderer.draw(playerShipSprite, SpatialProperties2D{.position{0, 0},.rotation{180}});
 			EndMode2D();
 		EndDrawing();
 	}
