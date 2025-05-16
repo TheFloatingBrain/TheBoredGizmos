@@ -25,6 +25,7 @@ namespace Bored:: GAME_NAME
 	}
 	void draw2D(Renderer2D& renderer, const Player& player)
 	{
+
 	}
 }
 #endif // BORED_GAMES_STAR_BOWLER_PLAYER_HEADER_HPP_INCLUDE_GUARD

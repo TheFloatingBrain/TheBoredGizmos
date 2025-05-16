@@ -4,7 +4,7 @@
     "height": 32,
     "Animations": {
       "Idle": {
-        "x": 0,
+        "x": 64,
         "y": 0,
         "x_tiles": 1,
         "y_tiles": 1,
@@ -19,7 +19,7 @@
     "height": 32,
     "Animations": {
       "Idle": {
-        "x": 0,
+        "x": 64,
         "y": 32,
         "x_tiles": 1,
         "y_tiles": 1,

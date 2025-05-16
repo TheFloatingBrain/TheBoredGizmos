@@ -261,8 +261,8 @@ namespace Bored:: GAME_NAME
 		{
 			sprite.setSourceRect(source);
 			Rectangle destination{
-				.x = source.x, 
-				.y = source.y,
+				.x = properties.position.x, 
+				.y = properties.position.y,
 				.width = properties.scale.x * screenScale.x * sprite.width,
 				.height = properties.scale.y * screenScale.y * sprite.height
 			};

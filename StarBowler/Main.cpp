@@ -44,6 +44,7 @@ int main(int argc, char** args)
 		ClearBackground(RAYWHITE);
 			BeginMode2D(camera);
 				renderer.draw(playerShipSprite, SpatialProperties2D{.position{0, 0},.rotation{180}});
+				DrawCircle(0, 0, 2.f, RED);
 			EndMode2D();
 		EndDrawing();
 	}
