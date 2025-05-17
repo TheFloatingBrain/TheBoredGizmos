@@ -1,4 +1,4 @@
-#include <StarBowler/Config.hpp>
+#include <LibBored/Config.hpp>
 #ifndef BORED_GAMES_STAR_BOWLER_SPRITE_HEADER_HPP_INCLUDE_GUARD
 #define BORED_GAMES_STAR_BOWLER_SPRITE_HEADER_HPP_INCLUDE_GUARD
 

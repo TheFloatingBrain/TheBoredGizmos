@@ -1,9 +1,10 @@
-﻿#include <StarBowler/Sprite.hpp>
+﻿#include <StarBowler/Player.hpp>
 using namespace Bored:: GAME_NAME;
 
 int main(int argc, char** args)
 {
 	spdlog::set_level(spdlog::level::trace);
+	SetTraceLogCallback(log);
 	spdlog::info("{} is the name of the game.", gameName);
 	spdlog::info("{} is the resource path.", resourceDirectory.string());
 	const float screenWidth = 240;
@@ -14,8 +15,7 @@ int main(int argc, char** args)
 		virtualScreenWidth / screenWidth, 
 		virtualScreenHeight / screenHeight
 	};
-	spdlog::trace("Scale x {} y {}", scale.x, scale.y);
-	SetTraceLogCallback(log);
+	spdlog::trace("Virtual Scaling Factors x {} y {}", scale.x, scale.y);
 	InitWindow(screenWidth, screenHeight, gameName.data());
 	SetTargetFPS(60);
 	auto atlasResult = loadSpriteAtlas(gameName, "Spritesheet");

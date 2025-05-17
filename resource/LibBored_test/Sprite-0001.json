@@ -1,0 +1,17 @@
+{
+  "Test": {
+    "width": 32,
+    "height": 32,
+    "Animations": {
+      "Idle": {
+        "x": 0,
+        "y": 0,
+        "x_tiles": 1,
+        "y_tiles": 1,
+        "x_order": "LR",
+        "y_order": "TB",
+        "coordinate_order": "XY"
+      }
+    }
+  }
+}

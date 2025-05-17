@@ -26,4 +26,5 @@ else()
 endif()
 
 # Include sub-projects.
+add_subdirectory ("LibBored")
 add_subdirectory ("StarBowler")
