@@ -1,4 +1,5 @@
 ﻿#include <StarBowler/Player.hpp>
+using namespace Bored;
 using namespace Bored:: GAME_NAME;
 
 int main(int argc, char** args)

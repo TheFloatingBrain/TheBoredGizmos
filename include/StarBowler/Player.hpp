@@ -5,6 +5,7 @@ namespace Bored:: GAME_NAME
 {
 	using EntityID = size_t;
 	enum class GameMode { D3, D2 };
+
 	const std::string& to_string(GameMode mode)
 	{
 		thread_local const std::string D2{"2D"};
@@ -12,9 +13,11 @@ namespace Bored:: GAME_NAME
 		if(mode == GameMode::D3) return D3;
 		return D2;
 	}
+
 	struct Input {
 		size_t up, down, left, right, bowl; // The amount of frames each has been pressed
 	};
+
 	struct Player /* I want to experiment with detaching game state from input/output, 
 		so no data like a Sprite will be here, just trivial state */
 	{
@@ -25,6 +28,7 @@ namespace Bored:: GAME_NAME
 		size_t relativePosition1D;
 		int8_t tilt;
 	};
+
 	inline Player makePlayer(
 		GameMode gameMode, 
 		const json& entities, 
@@ -45,6 +49,7 @@ namespace Bored:: GAME_NAME
 			initialTilt
 		};
 	}
+
 	void state2D(SpatialProperties2D& spatialProperties2D, const Player& player)
 	{
 		spatialProperties2D.rotation = 0.f;
@@ -52,6 +57,7 @@ namespace Bored:: GAME_NAME
 		spatialProperties2D.position.x = static_cast<float>(player.relativePosition1D) 
 				/ static_cast<float>(player.spatialMaximum);
 	}
+
 	void draw2D(Renderer2D& renderer, const Player& player)
 	{
 

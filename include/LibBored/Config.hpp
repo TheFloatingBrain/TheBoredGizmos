@@ -1,6 +1,6 @@
 #include <iostream>
-#ifndef BORED_GAMES_STAR_BOWLER_CONFIG_HEADER_HPP_INCLUDE_GUARD
-#define BORED_GAMES_STAR_BOWLER_CONFIG_HEADER_HPP_INCLUDE_GUARD
+#ifndef BORED_GAMES_LIB_BORED_CONFIG_HEADER_HPP_INCLUDE_GUARD
+#define BORED_GAMES_LIB_BORED_CONFIG_HEADER_HPP_INCLUDE_GUARD
 #include <string_view>
 #include <filesystem>
 #include <format>
@@ -16,32 +16,32 @@
 
 using json = nlohmann::json;
 
-namespace Bored:: GAME_NAME
+namespace Bored
 {
 	constexpr inline const auto gameName = std::string_view{GAME_NAME_STRING};
 
 	namespace Detail
 	{
 		#ifdef RESOURCE_DIRECTORY
-		constexpr inline const auto resourceDirectoryString = std::string_view{TO_STRING_MACRO(RESOURCE_DIRECTORY)};
-		inline const std::filesystem::path findResourceDirectory() {
-			const static thread_local auto path = std::filesystem::path(resourceDirectoryString) / "resource";
-			return path;
-		}
+			constexpr inline const auto resourceDirectoryString = std::string_view{TO_STRING_MACRO(RESOURCE_DIRECTORY)};
+			inline const std::filesystem::path findResourceDirectory() {
+				const static thread_local auto path = std::filesystem::path(resourceDirectoryString) / "resource";
+				return path;
+			}
 		#else
-		#if defined(RESOURCE_USE_BUNDLE) && RESOURCE_USE_BUNDLE == 1
-		inline const std::filesystem::path findResourceDirectory() {
-			const static thread_local auto path = std::filesystem::path(cpplocate::getBundlePath()) / "resource";
-			return path;
-		}
-		#else
-		#if defined(RESOURCE_USE_EXECUTABLE) && RESOURCE_USE_EXECUTABLE == 1
-		inline const std::filesystem::path findResourceDirectory() {
-			const static thread_local auto path = std::filesystem::path(cpplocate::getExecutablePath()).get_parent() / "resource";
-			return path;
-		}
-		#endif
-		#endif
+			#if defined(RESOURCE_USE_BUNDLE) && RESOURCE_USE_BUNDLE == 1
+				inline const std::filesystem::path findResourceDirectory() {
+					const static thread_local auto path = std::filesystem::path(cpplocate::getBundlePath()) / "resource";
+					return path;
+				}
+			#else
+				#if defined(RESOURCE_USE_EXECUTABLE) && RESOURCE_USE_EXECUTABLE == 1
+					inline const std::filesystem::path findResourceDirectory() {
+						const static thread_local auto path = std::filesystem::path(cpplocate::getExecutablePath()).get_parent() / "resource";
+						return path;
+					}
+				#endif
+			#endif
 		#endif
 	}
 	const inline thread_local auto resourceDirectory = Detail::findResourceDirectory();
@@ -55,18 +55,18 @@ namespace Bored:: GAME_NAME
 		static thread_local const auto dot = std::string{"."};
 		return before + dot + after;
 	}
-		
+
 	inline auto toResourcePath(const std::filesystem::path& from)
 	{
-		if(resourceDirectory.root_path() == from.root_path() 
-				&& from.is_absolute() == true)
+		if(resourceDirectory.root_path() == from.root_path()
+			&& from.is_absolute() == true)
 			return from;
 		if(*from.begin() == resourceDirectory.stem())
 			return resourceDirectory.parent_path() / from;
 		return resourceDirectory / from;
 		return from;
 	}
-	
+
 	struct Error
 	{
 		enum class ErrorKind
@@ -200,5 +200,5 @@ namespace Bored:: GAME_NAME
 		spdlog::log(to_spdlog_level(static_cast<TraceLogLevel>(msgType)), buffer.data());
 	}
 }
-#endif // BORED_GAMES_STAR_BOWLER_CONFIG_HEADER_HPP_INCLUDE_GUARD
+#endif // BORED_GAMES_LIB_BORED_CONFIG_HEADER_HPP_INCLUDE_GUARD
 
