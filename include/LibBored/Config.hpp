@@ -5,20 +5,25 @@
 #include <filesystem>
 #include <format>
 #include <fstream>
+#include <ranges>
+#include <flat_map>
+#include <limits>
 #include <cpplocate/cpplocate.h>
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
 #include <raylib.h>
-#include <ranges>
 #define TO_STRING_MACRO_INTERNAL(TO_STRINGIFY) #TO_STRINGIFY
 #define TO_STRING_MACRO(TO_STRINGIFY) TO_STRING_MACRO_INTERNAL(TO_STRINGIFY)
 #define GAME_NAME_STRING TO_STRING_MACRO(GAME_NAME)
 
 using json = nlohmann::json;
 
+namespace Bored:: GAME_NAME {
+	constexpr inline const auto gameName = std::string_view{GAME_NAME_STRING};
+}
+
 namespace Bored
 {
-	constexpr inline const auto gameName = std::string_view{GAME_NAME_STRING};
 
 	namespace Detail
 	{

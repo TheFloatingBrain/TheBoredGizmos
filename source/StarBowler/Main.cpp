@@ -25,7 +25,7 @@ int main(int argc, char** args)
 		return 1;
 	}
 	Renderer2D renderer{std::move(atlasResult.result), scale};
-	auto playerShipSpriteResult = renderer.atlas.retrieveSprite("PlayerBowlingShip");
+	auto playerShipSpriteResult = renderer.atlas.retrieveSprite(Player::entityName);
 	if(playerShipSpriteResult == false) {
 		spdlog::critical(to_string(playerShipSpriteResult.error));
 		return 1;
