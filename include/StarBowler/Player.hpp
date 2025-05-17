@@ -18,7 +18,7 @@ namespace Bored:: GAME_NAME
 	struct Player /* I want to experiment with detaching game state from input/output, 
 		so no data like a Sprite will be here, just trivial state */
 	{
-		constexpr inline std::string_view entityName{"PlayerBowlingShip"};
+		constexpr static std::string_view entityName{"PlayerBowlingShip"};
 		const size_t entityID;
 		const size_t spatialMaximum;
 		const size_t hardpointOffset;
@@ -45,12 +45,12 @@ namespace Bored:: GAME_NAME
 			initialTilt
 		};
 	}
-	void state2D(SpatialProperties2D& spatialProperties2D, const Player& player) const
+	void state2D(SpatialProperties2D& spatialProperties2D, const Player& player)
 	{
-		spatialProperties2D.rotation = 0.f
+		spatialProperties2D.rotation = 0.f;
 		spatialProperties2D.scale = {1.f, 1.f};
-		spatialProperties2D.position = static_cast<float>(relativePosition1D) 
-				/ static_cast<float>(spatialMaximum);
+		spatialProperties2D.position.x = static_cast<float>(player.relativePosition1D) 
+				/ static_cast<float>(player.spatialMaximum);
 	}
 	void draw2D(Renderer2D& renderer, const Player& player)
 	{
